@@ -1,8 +1,0 @@
-prefix=/home/luis/ROS_Challenges_MCR/Challenge1/devel
-
-Name: challenge1
-Description: Description of challenge1
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
