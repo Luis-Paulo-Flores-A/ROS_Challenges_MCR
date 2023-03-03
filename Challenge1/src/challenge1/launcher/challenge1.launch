@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<launch>
+    <node name="process_node" pkg="challenge1" type="process.py" output="screen"/>
+    <node name="signal_generator_node" pkg="challenge1" type="signal_generator.py" output="screen"/>
+    <node name="signal_generator_plot" pkg="rqt_plot" type="rqt_plot" args="/signal /processed_signal"/>
+    <node name="signal_generator_graph" pkg="rqt_graph" type="rqt_graph" args=""/>
+</launch>

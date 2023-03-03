@@ -1,0 +1,8 @@
+prefix=/home/luis/ROS_Challenges_MCR/Challenge2/devel
+
+Name: pid_control
+Description: Description of pid_control
+Version: 0.0.0
+Cflags: -I/home/luis/ROS_Challenges_MCR/Challenge2/devel/include
+Libs: -L${prefix}/lib 
+Requires: rospy std_msgs
