@@ -1,2 +1,0 @@
-actividad2
--DCATKIN_DEVEL_PREFIX=/home/luis/ROS_Challenges_MCR/Semana2/devel -DCMAKE_INSTALL_PREFIX=/home/luis/ROS_Challenges_MCR/Semana2/install -G Unix Makefiles
