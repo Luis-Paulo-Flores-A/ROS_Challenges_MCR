@@ -1,2 +1,0 @@
-challenge1
--DCATKIN_DEVEL_PREFIX=/home/luis/ROS_Challenges_MCR/Challenge1/devel -DCMAKE_INSTALL_PREFIX=/home/luis/ROS_Challenges_MCR/Challenge1/install -G Unix Makefiles
