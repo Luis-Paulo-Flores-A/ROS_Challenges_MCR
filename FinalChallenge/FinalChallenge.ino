@@ -1,71 +1,71 @@
-#include <ros/ros.h>
-#include <std_msgs/Float32.h>
-#include "final/motor_input.h"
-#include "final/motor_output.h"
-#include "final/sender.h"
+#include <ros.h>
+#include <ESP32Encoder.h>
+#include <final_challenge/motor_input.h> //Motor input
+#include <final_challenge/motor_output.h> //Motor output
 
-const double Kp = .05;
-const double Ki = 0.1;
-const double Kd = 0;
+#define PWM 4
+#define INPUT_MOTOR1 18
+#define INPUT_MOTOR2 15
+#define ENCODER1 34
+#define ENCODER2 36
+#define PI 3.1415926535
 
-double target_speed = 0.0;
-double current_speed = 0.0;
-double error = 0.0;
-double last_error = 0.0;
-double integral = 0.0;
-double derivative = 0.0;
-double output = 0.0;
+const int MED_TIME = 100; //Cada cuanto se calcula la velocidad (milis)
+const double TICKS_PER_LAP = 744; //Ticks que da la rueda por cada vuelta, se saca corriendo un ejemplo de la librería del encoder
+const double RADIANS_PER_TICK = (2*PI)/TICKS_PER_LAP; //Relación para obtener los radianes por cada tick de la rueda
 
-int nodeRate = 100;
-bool motor_init = false;
+long position = 0; //Posición actual
+long prevPos = 0; //Posición previa
+long timing = millis(); //Tiempo transcurrido
 
-void speed_callback(const final::motor_output::ConstPtr& msg)
-{
-    current_speed = msg->data;
-    motor_init = true;
+
+ESP32Encoder encoder;
+ros::NodeHandle nh;
+final_challenge::motor_output encoder1_vel;
+
+void pwmCall(const final_challenge::motor_input &pwmMsg) {
+  ledcWrite(0, abs((int)(pwmMsg.input) * 255));
+  if (pwmMsg.input > 0) {
+    digitalWrite(INPUT_MOTOR1, 1);
+    digitalWrite(INPUT_MOTOR2, 0);
+  } else {
+    digitalWrite(INPUT_MOTOR1, 0);
+    digitalWrite(INPUT_MOTOR2, 1);
+  }
 }
 
-void set_point_callback(const final::sender::ConstPtr& setpoint)
-{
-    target_speed = setpoint->set_point_data;
+
+void speed(int updatedPos) {
+  if (updatedPos != position){
+    position = updatedPos;
+  }
+  encoder1_vel.output = float(((RADIANS_PER_TICK*(position - prevPos))*1000)/MED_TIME );
+  prevPos = position;  
 }
 
-int main(int argc, char* argv[]){
-    ros::init(argc, argv, "motor_controller");
-    ros::NodeHandle handler;
-    ros::Rate rate(nodeRate); 
+ros::Subscriber<final_challenge::motor_input> pwm("/motor_input", pwmCall); //Recibe pwm
+ros::Publisher motorVel("/motor_output", &encoder1_vel); //El output del motor sera la velocidad del mismo
 
-    double last_time = ros::Time::now().toSec();
 
-    ros::Subscriber speedSub = handler.subscribe("/motor_output", 10, speed_callback);
-    ros::Subscriber setPointSub = handler.subscribe("/sender", 10, set_point_callback);
+void setup() {
+  ledcSetup(0, 980, 8);
+  pinMode(INPUT_MOTOR1, OUTPUT);
+  pinMode(INPUT_MOTOR2, OUTPUT);
+  pinMode(PWM, OUTPUT);
 
-    ros::Publisher signalPub = handler.advertise<final::motor_input>("/motor_input", 10);
+  //Inicializando ros
+  ledcAttachPin(PWM, 0);
+  nh.initNode();
+  nh.subscribe(pwm);
+  nh.advertise(motorVel);
+}
 
-    final::motor_input pwmOut;
-    pwmOut.input = 0.0;
-    signalPub.publish(pwmOut);
-    while (ros::ok()) {
-        ros::param::get("/ref", target_speed);
-        if(motor_init){
-            double dt = ros::Time::now().toSec() - last_time;
-            if(dt > 0) {
-                error = target_speed - current_speed;
-                integral += error*dt;
-                derivative = (error - last_error) / dt;
-                last_error = error;
-                pwmOut.input = (Kp*error)+(Kd*derivative)+(Ki*integral);
-                double result = abs(pwmOut.input);
-                if(result>1){
-                    pwmOut.input = pwmOut.input/result;
-                    signalPub.publish(pwmOut);
-                }else{
-                    signalPub.publish(pwmOut); 
-                }
-            }
-        }
-        last_time = ros::Time::now().toSec();
-        ros::spinOnce();
-        rate.sleep();
-    }
+
+void loop() {
+  if(millis()-timing >= MED_TIME){
+    speed(position);
+    motorVel.publish(&encoder1_vel);
+    timing = millis();
+  }
+  nh.spinOnce();
 }
