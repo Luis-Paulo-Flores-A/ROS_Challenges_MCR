@@ -31,8 +31,8 @@ int main(int argc, char* argv[]){
   ros::param::get("/Td",Td);
   
   ros::Subscriber systemFeedback = n.subscribe("/motor_output", 10, feedback);
-  ros::Publisher controllerOutput = n2.advertise<final::motor_input>("/motor_input", 10);
-  ros::Subscriber setPointSubscr = n.subscribe("/set_point", 10, setpoint_getter);
+  ros::Publisher systemResponse = n2.advertise<final::motor_input>("/motor_input", 10);
+  ros::Subscriber setReference = n.subscribe("/set_point", 10, setpoint_getter);
   ros::Rate rate(100); 
   double time = ros::Time::now().toSec();
   float error, rateError, time;
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
   float totError = 0.0;
   final::motor_input motor_in;
   motor_in.input = 0.0;
-  controllerOutput.publish(motor_in);
+  systemResponse.publish(motor_in);
   while (ros::ok()) {
       if(motor_init){
         init_time = ros::Time::now().toSec()- time;
@@ -53,11 +53,11 @@ int main(int argc, char* argv[]){
           if(abs(motor_in.input)>1){
             motor_in.input = motor_in.input/abs(motor_in.input);
           }
-          controllerOutput.publish(motor_in);
+          systemResponse.publish(motor_in);
         } else {
           final::motor_input motor_in;
           motor_in.input = 0;
-          controllerOutput.publish(motor_in);
+          systemResponse.publish(motor_in);
         }
       }
       init_time = ros::Time::now().toSec();
