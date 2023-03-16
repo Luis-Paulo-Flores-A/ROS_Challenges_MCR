@@ -9,7 +9,7 @@
 #include "final_challenge/motor_output.h"
 #include "final_chalenge/sender.h"
 
-float motor_out = 0, ref = 0;
+float motor_out = 0, reference = 0;
 bool motor_init = false;
 
 void feedback(const final::motor_output::ConstPtr &msg) {
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]){
       if(motor_init){
         init_time = ros::Time::now().toSec()- time;
         if(init_time > 0) {
-          error = ref - motor_out;
+          error = reference - motor_out;
           totError += error*init_time;
           rateError = (error - lastError) / time;
           lastError = error;
