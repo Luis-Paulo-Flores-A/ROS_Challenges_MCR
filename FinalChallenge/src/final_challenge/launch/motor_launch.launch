@@ -8,8 +8,8 @@
     </node>
 
     <param name="setpoint_type" type="int" value="1"/>
-    <node name="input" pkg="final_challenge" type="input.py"  output="screen"/>
-    <node name="controller" pkg="final_challenge" type="controller.py"  output="screen"/>
+    <node name="input" pkg="final_challenge" type="input"  output="screen"/>
+    <node name="controller" pkg="final_challenge" type="controller"  output="screen"/>
     <node name="response_plot" pkg="rqt_plot" type="rqt_plot" args="/motor_output/output /motor_input/input /set_point/set_point_data"/>
 
 </launch>
