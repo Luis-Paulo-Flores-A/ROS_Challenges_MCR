@@ -23,18 +23,17 @@ void setpoint_getter(const final::sender::ConstPtr &setpoint) {
 
 int main(int argc, char* argv[]){
   ros::init(argc, argv, "controller_node");
-  ros::NodeHandle handler;
-  ros::NodeHandle handler2;
-  int nodeRate = 100;
+  ros::NodeHandle n;
+  ros::NodeHandle n2;
   float Kp, Ti, Td;
   ros::param::get("/Kp",Kp);
   ros::param::get("/Ti",Ti);
   ros::param::get("/Td",Td);
   
-  ros::Subscriber systemFeedback = handler.subscribe("/motor_output", 10, feedback);
-  ros::Publisher controllerOutput = handler2.advertise<final::motor_input>("/motor_input", 10);
-  ros::Subscriber setPointSubscr = handler.subscribe("/set_point", 10, setpoint_getter);
-  ros::Rate rate(nodeRate); 
+  ros::Subscriber systemFeedback = n.subscribe("/motor_output", 10, feedback);
+  ros::Publisher controllerOutput = n2.advertise<final::motor_input>("/motor_input", 10);
+  ros::Subscriber setPointSubscr = n.subscribe("/set_point", 10, setpoint_getter);
+  ros::Rate rate(100); 
   double time = ros::Time::now().toSec();
   float error, rateError, time;
   float lastError = 0.0;
