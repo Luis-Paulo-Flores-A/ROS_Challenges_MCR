@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<launch>
+    <rosparam file = "$(find final_challenge)/config/control_params.yaml" command = "load"/>
+	<param name="set_point" value="17" />
+    <node name="motor" pkg="rosserial_python" type="serial_node.py" >
+        <param name="port"	type="string"	value="/dev/ttyUSB0"/>
+        <param name="baud" type="int" value = "57600"/>   
+    </node>
+
+    <param name="setpoint_type" type="int" value="1"/>
+    <node name="input" pkg="final_challenge" type="input.py"  output="screen"/>
+    <node name="controller" pkg="final_challenge" type="controller.py"  output="screen"/>
+    <node name="response_plot" pkg="rqt_plot" type="rqt_plot" args="/motor_output/output /motor_input/input /set_point/set_point_data"/>
+
+</launch>
