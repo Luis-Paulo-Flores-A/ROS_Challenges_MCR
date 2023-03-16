@@ -22,7 +22,7 @@ void setpoint_getter(const final::sender::ConstPtr &setpoint) {
 }
 
 int main(int argc, char* argv[]){
-  ros::init(argc, argv, "controller_node");
+  ros::init(argc, argv, "controller");
   ros::NodeHandle n;
   ros::NodeHandle n2;
   float Kp, Ti, Td;
